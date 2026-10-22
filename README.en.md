@@ -10,7 +10,7 @@ Using 900 production-line photos of cut kimchi from a food factory, we **built o
 ## At a Glance
 
 <p align="center">
-  <img src="assets/readme_flow.png" alt="One loop: raw labels → ① label QA tool → ② detection model → Auto Label → human re-review" width="100%">
+  <img src="assets/readme_flow.en.png" alt="One loop: raw labels → ① label QA tool → ② detection model → Auto Label → human re-review" width="100%">
 </p>
 
 | | [① Label QA Tool](./labeling-qa-tool) | [② Foreign-Object Detector](./detection-model) |
@@ -22,8 +22,8 @@ Using 900 production-line photos of cut kimchi from a food factory, we **built o
 
 <table>
   <tr>
-    <td width="50%"><a href="./labeling-qa-tool"><img src="labeling-qa-tool/docs/final_yolo_images/07_main.png" alt="Label QA overview"></a></td>
-    <td width="50%"><a href="./detection-model"><img src="detection-model/docs/figures/readme_dashboard.png" alt="Detection model dashboard"></a></td>
+    <td width="50%"><a href="./labeling-qa-tool"><img src="assets/labeling_overview.en.png" alt="Label QA overview"></a></td>
+    <td width="50%"><a href="./detection-model"><img src="assets/readme_dashboard.en.png" alt="Detection model dashboard"></a></td>
   </tr>
   <tr>
     <td align="center"><sub>① Label QA · 900 images, double review</sub></td>
@@ -31,7 +31,7 @@ Using 900 production-line photos of cut kimchi from a food factory, we **built o
   </tr>
 </table>
 
-<sub>Figures and detailed documents are in Korean.</sub>
+<sub>Detailed documents in each folder are in Korean.</sub>
 
 ## Key Findings
 
