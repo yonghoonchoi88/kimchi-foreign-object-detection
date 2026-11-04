@@ -1,103 +1,158 @@
-**한국어** | [English](README.en.md)
-# 조각김치 이물 검출 · 라벨 검수부터 모델 검증까지
+<div align="center">
+
+# 콩잎 질병 분류 · Fine-tuning부터 동기·비동기 서빙까지
+
+</div>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Python-3.10-3776AB?logo=python&logoColor=white" alt="Python 3.10"> <img src="https://img.shields.io/badge/PyTorch-2.14.1%20%7C%20CUDA%2013.0-EE4C2C?logo=pytorch&logoColor=white" alt="PyTorch 2.14.1 | CUDA 13.0"> <img src="https://img.shields.io/badge/Ultralytics-YOLO11n%208.4.175-111F68?logo=ultralytics&logoColor=white" alt="Ultralytics YOLO11n 8.4.175"> <img src="https://img.shields.io/badge/pandas-2.3.3-150458?logo=pandas&logoColor=white" alt="pandas 2.3.3"><br>
-  <img src="https://img.shields.io/badge/tkinter-Label%20QA%20Tool%20v4.1-FFD43B?logo=python&logoColor=black" alt="tkinter Label QA Tool v4.1"> <img src="https://img.shields.io/badge/Pillow-9.0%2B-3776AB" alt="Pillow 9.0+"> <img src="https://img.shields.io/badge/NVIDIA-RTX%203060%20%C3%975-76B900?logo=nvidia&logoColor=white" alt="NVIDIA RTX 3060 ×5"> <img src="https://img.shields.io/badge/GitHub-PR%20workflow-181717?logo=github&logoColor=white" alt="GitHub PR workflow">
+  <img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white" alt="Python 3.11"> <img src="https://img.shields.io/badge/PyTorch-2.15%20train%20%7C%202.5.1%20serve-EE4C2C?logo=pytorch&logoColor=white" alt="PyTorch 2.15 train | 2.5.1 serve"> <img src="https://img.shields.io/badge/Transformers-ResNet--18-FFD21E?logo=huggingface&logoColor=black" alt="Transformers ResNet-18"> <img src="https://img.shields.io/badge/FastAPI-0.115%2B-009688?logo=fastapi&logoColor=white" alt="FastAPI 0.115+"> <img src="https://img.shields.io/badge/Celery-5.4%2B-37814A?logo=celery&logoColor=white" alt="Celery 5.4+"> <img src="https://img.shields.io/badge/Redis-7.4-DC382D?logo=redis&logoColor=white" alt="Redis 7.4"><br>
+  <img src="https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 17"> <img src="https://img.shields.io/badge/Docker%20Compose-4%20services-2496ED?logo=docker&logoColor=white" alt="Docker Compose 4 services"> <img src="https://img.shields.io/badge/OpenCV-HSV%20analysis-5C3EE8?logo=opencv&logoColor=white" alt="OpenCV HSV analysis"> <img src="https://img.shields.io/badge/NVIDIA-RTX%203060-76B900?logo=nvidia&logoColor=white" alt="NVIDIA RTX 3060"> <img src="https://img.shields.io/badge/Ubuntu-22.04%20WSL2-E95420?logo=ubuntu&logoColor=white" alt="Ubuntu 22.04 WSL2">
 </p>
 
-식품 공장의 조각김치 이물 사진 900장으로 **라벨 검수 도구를 직접 만들고(①)**, 그 정답지로 **YOLO11n 검출 모델을 학습 · 평가한 뒤(②)**, 모델이 만든 라벨을 다시 ① 도구로 사람이 검수하는 **한 사이클**을 완성했습니다.
-
-> 📑 **최종 발표 자료**: [PDF](presentation/team01_prj07_prj08.pdf) · [Google Slides](https://docs.google.com/presentation/d/1lfYxkO_q-nYkV291dwh8UB7X9kVs7-QH/preview) · [Figma](https://www.figma.com/design/1B9QcM36Ne1j5sTHXcOAAV/1%EC%A1%B0?node-id=0-1)
-> ※ 회사 데이터(NDA) 보호를 위해 원본 사진 · 라벨 · 모델은 Git에 올리지 않았고, 모든 사진은 blur 처리했습니다.
+콩잎 사진 1,295장으로 ResNet-18을 **반점병 · 녹병 · 정상** 3클래스로 Fine-tuning하고, 동기 API · Redis 캐시 · Celery 비동기 작업 · PostgreSQL 작업 기록을 Docker Compose로 서비스했습니다.
+기준선의 원인을 진단해 **교재의 Full Fine-tuning 설정 → 증강 추가** 순서로 개선했고, 모델은 **Validation으로 고른 뒤 Test에 한 번** 평가했습니다.
 
 ## 한눈에 보기
 
 <p align="center">
-  <img src="assets/readme_flow.png" alt="한 사이클: 원본 라벨 → ① 라벨 검수 도구 → ② 검출 모델 → Auto Label → 사람이 다시 검수" width="100%">
+  <img src="reports/figures/pipeline.png" alt="파이프라인" width="100%">
 </p>
-
-| | [① 라벨 검수 도구](./labeling-qa-tool) | [② 이물 검출 모델](./detection-model) |
-|---|---|---|
-| **한 일** | Python · tkinter로 라벨 검수 프로그램 v4.1 제작 · 5명 1차 검수 → 다른 사람 교차검수 | 촬영 세션 단위 Split · YOLO11n Baseline → 실패 분석 → 변수 1개 개선 → Frozen Test 1회 |
-| **핵심 숫자** | QA PASS **900 / 900** · 기존 라벨 **52%(469장)** 수정 · REVIEW 27 → 미해결 0 · 본인 PASS 0건 | Val mAP50 **0.622 → 0.756** · 놓침 159 → 60 · Test mAP50 **0.606** (1회) · AI 후보 **72%** 그대로 승인 |
-| **넘긴 것** | FINAL 900장 + 검출 모델 단계 인계 문서 | Final Model + 후속 프로젝트 인계 · Acceptance **33 / 33** |
-| **기록** | [README](./labeling-qa-tool) · [코드 리뷰](labeling-qa-tool/docs/code_review/README.md) · Release `v4.1` | [README](./detection-model) · [코드 리뷰](detection-model/docs/code_review/README.md) · Tag `subject8_final_v1` |
 
 <table>
   <tr>
-    <td width="50%"><a href="./labeling-qa-tool"><img src="labeling-qa-tool/docs/final_yolo_images/07_main.png" alt="라벨 검수 한눈에 보기"></a></td>
-    <td width="50%"><a href="./detection-model"><img src="detection-model/docs/figures/readme_dashboard.png" alt="검출 모델 대시보드"></a></td>
+    <th width="10%"></th>
+    <th width="45%">① 모델</th>
+    <th width="45%">② 서비스</th>
   </tr>
   <tr>
-    <td align="center"><sub>① 라벨 검수 · 900장 이중 검수</sub></td>
-    <td align="center"><sub>② 검출 모델 · 학습 · 평가 · 자동 라벨 결과</sub></td>
+    <td align="center"><b>한 일</b></td>
+    <td>데이터 점검 → Head-only 기준선 → Full Fine-tuning · 증강 실험 → Val 선택 → Test 1회 → 오답 분석</td>
+    <td>동기 API + Redis 캐시 · Celery 비동기 · PostgreSQL 기록 · 모델 교체 · 장애 테스트</td>
+  </tr>
+  <tr>
+    <td align="center"><b>핵심 숫자</b></td>
+    <td>Val <b>0.767 → 0.993</b> · 최종 Test <b>0.953</b> · 병든 잎 놓침 Val <b>11 → 1</b>, Test <b>0</b></td>
+    <td>캐시 HIT <b>−91%</b> · 비동기 접수 <b>9.1 ms</b> · 실환경 테스트 <b>27 / 27 PASS</b></td>
+  </tr>
+  <tr>
+    <td align="center"><b>기록</b></td>
+    <td><a href="reports/01_FineTuning_결과보고서.md">산출물 1</a> · <a href="reports/08_최종기술보고서.md">산출물 8</a></td>
+    <td><a href="#산출물">산출물 2~7</a> · <a href="reports/07_기능테스트_오류분석.md">기능 테스트</a></td>
+  </tr>
+  <tr>
+    <td align="center"><b>한눈에</b></td>
+    <td align="center" valign="top"><img src="reports/figures/dashboard.png" alt="모델 결과 한눈에 보기"><br>모델 선택 · 최종 평가 · 오류 유형</td>
+    <td align="center" valign="top"><img src="reports/figures/service.png" alt="서비스 검증 한눈에 보기"><br>웹 화면 · 응답 시간 · API·장애 테스트</td>
   </tr>
 </table>
 
-## 내 역할 — 최용훈 (PM / Integrator)
+### 실험 설정 — 무엇을 바꿨나
 
-> 5인 팀의 PM으로 데이터 · 모델의 품질 기준을 정하고, 팀원 작업을 PR 리뷰로 검증해 `main`에 통합했습니다.
+| 실험 | 바꾼 것 | 학습되는 부분 | 학습률 | Train 증강 | Validation |
+|---|---|---|---:|---|---:|
+| **E1** Head-only (필수) | 제공 명령 그대로 (`--freeze-backbone`) | 마지막 분류 헤드만 (1,539개) | 0.0002 | 없음 (제공 코드에 증강 기능 없음) | 0.767 |
+| **E2** Full Fine-tuning | 동결 해제 + 학습률 ¼ (가이드 6-1 B 설정) | **Backbone 포함 전체** (약 1,118만 개) | 0.00005 | 없음 (Full 효과만 보려고 뺌) | 0.970 |
+| **E3** Full + 증강 ⭐ | E2에 **Train 증강만** 추가 | 전체 | 0.00005 | 좌우 반전(50%) · 회전 ±20° · 밝기·대비 ±20% | **0.993** |
 
-| 지표 | 값 |
+- **Full Fine-tuning:** E1는 ImageNet에서 배운 "눈"(Backbone)을 고정하고 마지막 층만 학습했다. E2는 Backbone까지 콩잎 병반에 맞게 다시 학습하고, 사전학습 특징이 망가지지 않도록 학습률을 낮췄다.
+- **증강:** 학습할 때마다 Train 사진을 무작위로 뒤집고·돌리고·밝기를 바꿔 촬영 방향·조명 차이에 강하게 만든다. 녹병(적갈색)과 반점병(황갈색)은 색이 단서라 **색조·채도는 바꾸지 않았다.** Validation·Test에는 적용하지 않는다.
+- 공통: epochs 3 · batch 8 · 같은 Train/Validation · `training/finetune.py` 미수정 (E3는 래퍼 `training/finetune_aug.py`)
+- 실험 ID: 실험은 **E1 → E2 → E3 세 개**다. 기준선은 작업 당시 **E0**로 불렀다가 문서 정리 때 E1로 바꿨다. 수치는 그대로이며, 그 시점의 평가 화면 캡처(`eval_val_E1.png` 등)에는 `--tag E0_headonly`와 저장 파일 이름 `eval_val_E0_headonly.json` 등이 찍혀 있다 (현재 파일 이름은 `E1_headonly`). 학습 로그 파일 이름의 `e3`(`train_full_e3.log` 등)는 실험 E3가 아니라 **epochs 3**을 뜻한다.
+
+## 산출물
+
+| # | 문서 | 핵심 |
+|---:|---|---|
+| 1 | [Fine-tuning 결과보고서](reports/01_FineTuning_결과보고서.md) | 데이터 점검 · E1/E2/E3 · Val 선택 · Test 1회 · 모델 교체 |
+| 2 | [시스템 아키텍처](reports/02_시스템_아키텍처.md) | Docker Compose 4서비스 · Redis DB1/2/3 역할 |
+| 3 | [API 명세서](reports/03_API_명세서.md) | 6개 API · 실제 응답 JSON · 400/413/404/503 |
+| 4 | [DB 구조 · 작업이력](reports/04_DB_구조_작업이력.md) | DDL · 상태 전이 · job 1~21 (`failed` 포함) |
+| 5 | [AI 버튼 처리흐름](reports/05_AI버튼_처리흐름.md) | 동기·비동기 처리 흐름도 (파일·함수·줄 번호) · 코드 연결표 |
+| 6 | [성능 비교](reports/06_성능비교_보고서.md) | `timings.csv` · 캐시·비동기 해석 |
+| 7 | [기능 테스트 · 오류](reports/07_기능테스트_오류분석.md) | 실환경 27건 · 모의 2건 · 오류 12건 |
+| 8 | [**최종 기술 보고서**](reports/08_최종기술보고서.md) | 종합 · 개선 기술 ①~④ · 한계 · 개선 제안 |
+| 9 | [성능 분석 · 개선 보고서](reports/09_성능분석_개선보고서.md) | 문제 P1~P5 → 원인 → 개선 → 재검증 |
+
+<details>
+<summary><b>빠른 실행</b> — 데이터 배치 → 학습 → <code>docker compose up</code> (데이터·모델·<code>.env</code>는 저장소에 없음)</summary>
+
+```bash
+# 1. 환경 (WSL2 Ubuntu 22.04 · Python 3.11 · Docker Desktop WSL Integration)
+uv venv --python 3.11 && source .venv/bin/activate
+uv pip install -r requirements.txt
+
+# 2. 데이터: 원본 zip은 보존, 제공 코드가 읽는 dataset/train · val · test 로 배치
+mkdir -p dataset
+unzip -q ~/beans_source/train.zip -d dataset/
+unzip -q ~/beans_source/validation.zip -d dataset/ && mv dataset/validation dataset/val
+unzip -q ~/beans_source/test.zip -d dataset/
+python scripts/check_dataset.py                          # 1034 / 133 / 128, 중복·누출 0
+
+# 3. 학습 (GPU) — E3가 서비스 모델
+python -m training.finetune     --data dataset --output artifacts/beans_resnet18          --epochs 3 --batch-size 8 --freeze-backbone
+python -m training.finetune     --data dataset --output artifacts/beans_resnet18_full     --epochs 3 --batch-size 8 --lr 0.00005
+python -m training.finetune_aug --data dataset --output artifacts/beans_resnet18_full_aug --epochs 3 --batch-size 8 --lr 0.00005
+
+# 4. 서비스
+cp .env.example .env
+sed -i 's#^MODEL_PATH=.*#MODEL_PATH=artifacts/beans_resnet18_full_aug#' .env
+mkdir -p artifacts media/jobs
+docker compose up -d --build
+curl -s http://127.0.0.1:8000/health ; echo             # 화면: /vision/sync/ · /vision/async/ · /docs
+# 확인: /health → {"status":"ok"} · 동기 → top1·cache_hit · 비동기 → 202·job_id → done · DB image_jobs 행
+# 가이드 기본 경로(E1)로 전환: sed -i 's#^MODEL_PATH=.*#MODEL_PATH=artifacts/beans_resnet18#' .env && docker compose up -d --force-recreate web worker
+docker compose stop                                      # 정지 (down -v 는 DB·캐시를 지우므로 사용 안 함)
+
+# 5. 테스트 · 분석
+python -m pytest -q tests/test_api.py                    # 모의 테스트 4 passed
+python scripts/measure_timings.py --repeat 5             # 서버 실행 중 → reports/data/timings.csv
+uv pip install opencv-python-headless matplotlib         # 분석·그림 전용
+python scripts/hsv_rule_analysis.py && python scripts/make_figures.py
+```
+
+</details>
+
+<details>
+<summary><b>추가한 도구</b> — 제공 코드는 수정하지 않고 7개 파일 추가</summary>
+
+| 파일 | 하는 일 |
 |---|---|
-| 커밋 (merge 제외) | **205개 중 145개 (71%)** · 10/22 기준 |
-| PR 리뷰 · merge | **153건 중 130건** · 검출 모델 단계는 **82건 전부** (팀장만 merge 규칙) |
-| 기간 | 2026-10-02 ~ 10-22 (3주) |
-
-<details>
-<summary><b>직접 한 일</b> — 검수 도구 구조 설계 · 교차검수 규칙 · Split 설계 · Final Model · Acceptance 33/33</summary>
-
-**① 라벨 검수 도구**
-- 단일 `app.py`를 기능별 모듈(ui · bbox · yolo · records · qa · validation)로 분리 ([#1])
-- `data/raw → work → final` 3단 구조 · 수정 없이 final로 직행 금지 규칙 ([#6])
-- 교차검수 규칙 설계: 본인이 1차 검수한 이미지는 본인이 PASS 불가
-- QA Summary · Handoff 문서 자동 생성 · 5명 결과 취합 · Dataset Manifest · Acceptance Test
-- 직접 검수: 1차 150장 · 교차검수 83장
-
-**② 검출 모델**
-- Dataset Version `kimchi_v1` 확정: 문서상 BBox 4,602개와 실제 4,601개의 차이를 추적 ([#67])
-- Split 설계 · 구현: 촬영 세션 · Leakage 분석 → 세션 단위 배정 600/74/80/146 (합격 기준 8/8) → Freeze 스크립트 ([#70], [#81])
-- Baseline 학습 · 평가 ([#92]) → 실패 분석 기반 exp001 설계 ([#104])
-- Final Model 확정 → Frozen Test 1회 평가 ([#111]) → Acceptance 33/33 · 인계 ([#117])
-
-**포트폴리오 정리 (수료 후)**
-- 클린 설치 중 `requirements.txt` 오류 발견 · 수정: pandas 3.x 요구로 Python 3.10에서 설치 불가 ([#157])
-- 폴더 · 용어 정리, 새 폴더 이름에 맞춰 NDA 보호 규칙(`.gitignore`) 갱신
+| `scripts/check_dataset.py` | 클래스별 개수, SHA-256 중복·누출·라벨 충돌 점검 |
+| `training/finetune_aug.py` | 제공 `finetune.py`를 재사용하며 Train에만 증강 적용 (E3) |
+| `scripts/evaluate_split.py` | 정확도·혼동행렬·P/R/F1·점수 차 구간·오답 목록 |
+| `scripts/measure_timings.py` | 동기/비동기 × MISS/HIT 반복 측정, 워밍업 분리 |
+| `scripts/gradcam.py` | 오답 사진 Grad-CAM, 모델 간 비교 |
+| `scripts/hsv_rule_analysis.py` | OpenCV HSV 병반 후보 분석 + 보조 규칙 시뮬레이션 |
+| `scripts/make_figures.py` | `reports/data` 원본만 읽어 대시보드·그래프 생성 |
 
 </details>
 
 <details>
-<summary><b>팀</b> — 최용훈 PM · 박건 · 심준형 · 김하민 · 이승훈</summary>
+<summary><b>폴더 구조</b></summary>
 
-| 팀원 | ① 라벨 검수 역할 | ② 검출 모델 역할 |
-|:-:|---|---|
-| 최용훈 [`@yonghoonchoi88`](https://github.com/yonghoonchoi88) | PM / Integrator | PM / Integrator |
-| 박건 [`@howolcat`](https://github.com/howolcat) | Program / Validation | Evaluation / Failure · Experiment |
-| 심준형 [`@simpson92`](https://github.com/simpson92) | QA / Test | Data / QA · Training |
-| 김하민 [`@hxxdxm`](https://github.com/hxxdxm) | Docs / Guide | Inference / Document |
-| 이승훈 [`@lee26060715`](https://github.com/lee26060715) | Feature / Record | — |
-
-> 자세한 작업 내용은 각 프로젝트 README의 **팀** 표를 참고합니다.
+```text
+├── ai/ · main.py          # 제공 코드: 모델·서비스·라우터·캐시·Celery·DB
+├── training/              # 제공 finetune.py + 추가 finetune_aug.py
+├── scripts/               # 추가 도구 (점검·평가·측정·분석·그림)
+├── templates/ · static/   # 제공 웹 화면
+├── tests/                 # test_api.py (02 모의 테스트) · legacy_01/ (01 단계 기록)
+├── compose.yaml · Dockerfile · requirements.txt · .env.example
+├── reports/
+│   ├── 01_*.md ~ 08_*.md  # 산출물
+│   ├── data/              # 원본 결과 (학습 리포트·평가·응답 시간·HSV)
+│   ├── figures/           # 파이프라인·모델/서비스 보드·그래프·구성도·gradcam·hsv
+│   └── evidence/          # 실행 캡처 00_env ~ 08_failure_test (단계별)
+└── artifacts/ · media/    # 모델·업로드 이미지 (Git 제외, 폴더만 유지)
+```
 
 </details>
 
 <details>
-<summary><b>기술 · 규칙</b> — Python 3.10 · PyTorch 2.14.1 · Ultralytics 8.4.175 · NDA 데이터 Git 제외</summary>
+<summary><b>환경 · 보안 · 한계</b></summary>
 
-- **환경**: Python 3.10 · PyTorch 2.14.1 · Ultralytics 8.4.175 · RTX 3060 (5명 동일 버전)
-- **협업**: 개인 branch → Pull Request → `main` merge · 검출 모델 단계부터 팀장만 merge
-- **보안**: 원본 데이터 · 학습 결과 · 가중치는 `.gitignore`로 제외 (NDA)
+- **환경:** WSL2 Ubuntu 22.04.5 · Python 3.11.16 · transformers 4.57.6 · RTX 3060(학습) · Docker 29.9.2 / Compose v5.6.1 · 컨테이너 추론 CPU
+- **보안:** `.env` · `dataset/` · `artifacts/` · `media/jobs/`는 Git 제외. `compose.yaml`의 DB 비밀번호는 교재 제공 로컬 실습값(포트는 `127.0.0.1`에만 바인딩) → 운영 시 `.env` 분리 권장
+- **한계:** 단일 출처 데이터 · 실험당 1회 실행 · 동시 부하 미측정 · 학습 범위 밖 입력도 3클래스 중 하나로 분류
+- **출처:** 데이터 [AI-Lab-Makerere/beans](https://huggingface.co/datasets/AI-Lab-Makerere/beans) · 모델 [microsoft/resnet-18](https://huggingface.co/microsoft/resnet-18)
 
 </details>
-
-[#1]: https://github.com/yonghoonchoi88/kimchi-foreign-object-detection/pull/1
-[#6]: https://github.com/yonghoonchoi88/kimchi-foreign-object-detection/pull/6
-[#67]: https://github.com/yonghoonchoi88/kimchi-foreign-object-detection/pull/67
-[#70]: https://github.com/yonghoonchoi88/kimchi-foreign-object-detection/pull/70
-[#81]: https://github.com/yonghoonchoi88/kimchi-foreign-object-detection/pull/81
-[#92]: https://github.com/yonghoonchoi88/kimchi-foreign-object-detection/pull/92
-[#104]: https://github.com/yonghoonchoi88/kimchi-foreign-object-detection/pull/104
-[#111]: https://github.com/yonghoonchoi88/kimchi-foreign-object-detection/pull/111
-[#117]: https://github.com/yonghoonchoi88/kimchi-foreign-object-detection/pull/117
-[#157]: https://github.com/yonghoonchoi88/kimchi-foreign-object-detection/pull/157
