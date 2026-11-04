@@ -1,6 +1,11 @@
 **한국어** | [English](README.en.md)
 # 조각김치 이물 검출 · 라벨 검수부터 모델 검증까지
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10-3776AB?logo=python&logoColor=white" alt="Python 3.10"> <img src="https://img.shields.io/badge/PyTorch-2.14.1%20%7C%20CUDA%2013.0-EE4C2C?logo=pytorch&logoColor=white" alt="PyTorch 2.14.1 | CUDA 13.0"> <img src="https://img.shields.io/badge/Ultralytics-YOLO11n%208.4.175-111F68?logo=ultralytics&logoColor=white" alt="Ultralytics YOLO11n 8.4.175"> <img src="https://img.shields.io/badge/pandas-2.3.3-150458?logo=pandas&logoColor=white" alt="pandas 2.3.3"><br>
+  <img src="https://img.shields.io/badge/tkinter-Label%20QA%20Tool%20v4.1-FFD43B?logo=python&logoColor=black" alt="tkinter Label QA Tool v4.1"> <img src="https://img.shields.io/badge/Pillow-9.0%2B-3776AB" alt="Pillow 9.0+"> <img src="https://img.shields.io/badge/NVIDIA-RTX%203060%20%C3%975-76B900?logo=nvidia&logoColor=white" alt="NVIDIA RTX 3060 ×5"> <img src="https://img.shields.io/badge/GitHub-PR%20workflow-181717?logo=github&logoColor=white" alt="GitHub PR workflow">
+</p>
+
 식품 공장의 조각김치 이물 사진 900장으로 **라벨 검수 도구를 직접 만들고(①)**, 그 정답지로 **YOLO11n 검출 모델을 학습 · 평가한 뒤(②)**, 모델이 만든 라벨을 다시 ① 도구로 사람이 검수하는 **한 사이클**을 완성했습니다.
 
 > 📑 **최종 발표 자료**: [PDF](presentation/team01_prj07_prj08.pdf) · [Google Slides](https://docs.google.com/presentation/d/1lfYxkO_q-nYkV291dwh8UB7X9kVs7-QH/preview) · [Figma](https://www.figma.com/design/1B9QcM36Ne1j5sTHXcOAAV/1%EC%A1%B0?node-id=0-1)

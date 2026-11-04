@@ -1,5 +1,10 @@
 # Kimchi Foreign-Object Detection · From Label QA to Model Validation
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10-3776AB?logo=python&logoColor=white" alt="Python 3.10"> <img src="https://img.shields.io/badge/PyTorch-2.14.1%20%7C%20CUDA%2013.0-EE4C2C?logo=pytorch&logoColor=white" alt="PyTorch 2.14.1 | CUDA 13.0"> <img src="https://img.shields.io/badge/Ultralytics-YOLO11n%208.4.175-111F68?logo=ultralytics&logoColor=white" alt="Ultralytics YOLO11n 8.4.175"> <img src="https://img.shields.io/badge/pandas-2.3.3-150458?logo=pandas&logoColor=white" alt="pandas 2.3.3"><br>
+  <img src="https://img.shields.io/badge/tkinter-Label%20QA%20Tool%20v4.1-FFD43B?logo=python&logoColor=black" alt="tkinter Label QA Tool v4.1"> <img src="https://img.shields.io/badge/Pillow-9.0%2B-3776AB" alt="Pillow 9.0+"> <img src="https://img.shields.io/badge/NVIDIA-RTX%203060%20%C3%975-76B900?logo=nvidia&logoColor=white" alt="NVIDIA RTX 3060 ×5"> <img src="https://img.shields.io/badge/GitHub-PR%20workflow-181717?logo=github&logoColor=white" alt="GitHub PR workflow">
+</p>
+
 [한국어](README.md) | **English**
 
 Using 900 production-line photos of cut kimchi from a food factory, we **built our own label QA tool (①)**, used the verified labels to **train and evaluate a YOLO11n detector (②)**, and fed the model's predictions back into the ① tool for **human review — closing one full data loop**.
