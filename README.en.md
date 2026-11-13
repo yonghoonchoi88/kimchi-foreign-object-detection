@@ -9,6 +9,8 @@
 
 Using 900 production-line photos of cut kimchi from a food factory, we **built our own label QA tool (①)**, used the verified labels to **train and evaluate a YOLO11n detector (②)**, and fed the model's predictions back into the ① tool for **human review — closing one full data loop**.
 
+> 📄 **Technical docs**: [Figma](https://www.figma.com/design/peaPChl6cdBJjuzULYJkPk/Kimchi_Foreign_Object_Detection)
+>
 > 📑 **Final presentation** (Korean): [PDF](presentation/team01_prj07_prj08.pdf) · [Google Slides](https://docs.google.com/presentation/d/1lfYxkO_q-nYkV291dwh8UB7X9kVs7-QH/preview) · [Figma](https://www.figma.com/design/1B9QcM36Ne1j5sTHXcOAAV/1%EC%A1%B0?node-id=0-1)
 > ※ The images are company-provided data under NDA. Raw photos, labels, and model weights are excluded from Git, and every photo shown here is blurred.
 
